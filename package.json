@@ -1,0 +1,27 @@
+{
+  "name": "sql-to-erd",
+  "version": "1.0.0",
+  "description": "100% offline SQL-to-ERD visualizer, parser, and exporter supporting MySQL, PostgreSQL, SQLite, SQL Server, and Oracle.",
+  "type": "module",
+  "bin": {
+    "sql2erd": "./bin/sql2erd.mjs"
+  },
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "cli": "node bin/sql2erd.mjs"
+  },
+  "keywords": [
+    "sql",
+    "erd",
+    "database",
+    "diagram",
+    "offline",
+    "mysql",
+    "postgresql",
+    "sqlite",
+    "sqlserver"
+  ],
+  "license": "MIT"
+}
