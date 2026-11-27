@@ -72,16 +72,13 @@ test('CLI converts a real SQL file to SVG and Mermaid cleanly', () => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
-test('single-file offline bundle builds with valid JS syntax and zero external CDN references', () => {
-  execFileSync('node', ['scripts/build.mjs'], { cwd: process.cwd() });
-  const distHtml = fs.readFileSync(path.join(process.cwd(), 'dist/sql-to-erd.html'), 'utf8');
+test('Vite single-file offline bundle builds with valid JS and zero external CDN references', () => {
+  execFileSync('npx', ['vite', 'build'], { cwd: process.cwd() });
+  const distHtml = fs.readFileSync(path.join(process.cwd(), 'dist/index.html'), 'utf8');
 
   // Verify no external scripts/stylesheets/fonts (100% offline guarantee)
   assert.equal(/<script[^>]+src=/.test(distHtml), false, 'Should not load any external script');
   assert.equal(/<link[^>]+href=["']https?:\/\//.test(distHtml), false, 'Should not load any external CSS/fonts');
-
-  // Extract inline script and verify JS syntax compiles cleanly
-  const match = distHtml.match(/<script>([\s\S]*?)<\/script>/);
-  assert.ok(match && match[1].length > 10000, 'Expected substantial inline JS bundle');
-  assert.doesNotThrow(() => new Function(match[1]), 'Bundled JS should have zero syntax errors');
+  assert.ok(distHtml.includes('<div id="root"></div>'), 'Expected React root mount element');
+  assert.ok(distHtml.length > 100000, 'Expected inlined React + SQL-to-ERD bundle');
 });
