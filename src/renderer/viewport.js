@@ -1,8 +1,14 @@
 /**
- * Interactive SVG Viewport Controller
+ * Interactive SVG Viewport Controller with Phantom-style Smooth Bouncy Camera Transitions
  * Handles smooth pan, cursor-centered wheel zoom, table dragging with live edge redraw,
- * snap-to-grid, fit-to-screen, zoom-to-target, and interactive minimap synchronization.
+ * snap-to-grid, animated fit-to-screen, animated zoom-to-target, and minimap sync.
  */
+
+function easeOutBack(t) {
+  const c1 = 1.25;
+  const c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
 
 export class ErdViewport {
   constructor(svgEl, worldGroupEl, callbacks = {}) {
@@ -23,18 +29,53 @@ export class ErdViewport {
     this._dragStartClient = null;
     this._dragStartWorld = null;
     this._dragMoved = false;
+    this._animRaf = null;
 
     this._bindEvents();
+  }
+
+  _cancelAnimation() {
+    if (this._animRaf) {
+      cancelAnimationFrame(this._animRaf);
+      this._animRaf = null;
+    }
+  }
+
+  animateTo(targetTx, targetTy, targetScale, durationMs = 340) {
+    this._cancelAnimation();
+    const startTx = this.tx;
+    const startTy = this.ty;
+    const startScale = this.scale;
+    const startTime = performance.now();
+
+    const tick = (now) => {
+      const elapsed = now - startTime;
+      const rawT = Math.min(1, elapsed / durationMs);
+      const eased = rawT >= 1 ? 1 : easeOutBack(rawT);
+
+      this.tx = startTx + (targetTx - startTx) * eased;
+      this.ty = startTy + (targetTy - startTy) * eased;
+      this.scale = Math.max(this.minScale, Math.min(this.maxScale, startScale + (targetScale - startScale) * eased));
+      this.applyTransform();
+
+      if (rawT < 1) {
+        this._animRaf = requestAnimationFrame(tick);
+      } else {
+        this._animRaf = null;
+      }
+    };
+
+    this._animRaf = requestAnimationFrame(tick);
   }
 
   _bindEvents() {
     this.svg.addEventListener('wheel', (e) => {
       e.preventDefault();
+      this._cancelAnimation();
       const rect = this.svg.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
 
-      // Support trackpad pinch (ctrlKey) and regular wheel smoothly
       const factor = e.ctrlKey
         ? Math.exp(-e.deltaY * 0.01)
         : e.deltaY < 0
@@ -46,6 +87,7 @@ export class ErdViewport {
 
     this.svg.addEventListener('pointerdown', (e) => {
       if (e.button !== 0 && e.button !== 1) return;
+      this._cancelAnimation();
 
       const tableEl = e.target.closest?.('.erd-table');
       const edgeEl = e.target.closest?.('.erd-edge');
@@ -68,7 +110,6 @@ export class ErdViewport {
         return;
       }
 
-      // Pan canvas
       this._panning = true;
       this._dragMoved = false;
       this._dragStartClient = { x: e.clientX, y: e.clientY };
@@ -166,42 +207,61 @@ export class ErdViewport {
 
   zoomBy(factor) {
     const rect = this.svg.getBoundingClientRect();
-    this.zoomAt(rect.width / 2, rect.height / 2, this.scale * factor);
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const targetScale = Math.max(this.minScale, Math.min(this.maxScale, this.scale * factor));
+    const ratio = targetScale / this.scale;
+    const targetTx = cx - (cx - this.tx) * ratio;
+    const targetTy = cy - (cy - this.ty) * ratio;
+    this.animateTo(targetTx, targetTy, targetScale, 240);
   }
 
   resetZoom() {
     const rect = this.svg.getBoundingClientRect();
-    this.zoomAt(rect.width / 2, rect.height / 2, 1);
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const ratio = 1 / this.scale;
+    this.animateTo(cx - (cx - this.tx) * ratio, cy - (cy - this.ty) * ratio, 1, 280);
   }
 
-  fitBounds(bounds, margin = 48) {
+  fitBounds(bounds, margin = 52, animated = true) {
     if (!bounds || bounds.width <= 0 || bounds.height <= 0) return;
     const rect = this.svg.getBoundingClientRect();
     const vw = Math.max(200, rect.width);
     const vh = Math.max(200, rect.height);
     const availW = Math.max(100, vw - margin * 2);
     const availH = Math.max(100, vh - margin * 2);
-    const s = Math.min(1.15, Math.max(this.minScale, Math.min(availW / bounds.width, availH / bounds.height)));
+    const s = Math.min(1.12, Math.max(this.minScale, Math.min(availW / bounds.width, availH / bounds.height)));
     const cx = bounds.minX + bounds.width / 2;
     const cy = bounds.minY + bounds.height / 2;
-    this.scale = s;
-    this.tx = vw / 2 - cx * s;
-    this.ty = vh / 2 - cy * s;
-    this.applyTransform();
+    const targetTx = vw / 2 - cx * s;
+    const targetTy = vh / 2 - cy * s;
+
+    if (animated) {
+      this.animateTo(targetTx, targetTy, s, 360);
+    } else {
+      this._cancelAnimation();
+      this.scale = s;
+      this.tx = targetTx;
+      this.ty = targetTy;
+      this.applyTransform();
+    }
   }
 
   centerOnRect(x, y, width, height, targetScale = null) {
     const rect = this.svg.getBoundingClientRect();
     const vw = rect.width || 1000;
     const vh = rect.height || 700;
-    const s = targetScale ? Math.max(this.minScale, Math.min(this.maxScale, targetScale)) : Math.max(0.75, Math.min(1.15, this.scale));
-    this.scale = s;
-    this.tx = vw / 2 - (x + width / 2) * s;
-    this.ty = vh / 2 - (y + height / 2) * s;
-    this.applyTransform();
+    const s = targetScale
+      ? Math.max(this.minScale, Math.min(this.maxScale, targetScale))
+      : Math.max(0.78, Math.min(1.12, this.scale));
+    const targetTx = vw / 2 - (x + width / 2) * s;
+    const targetTy = vh / 2 - (y + height / 2) * s;
+    this.animateTo(targetTx, targetTy, s, 340);
   }
 
   centerOnWorldPoint(wx, wy) {
+    this._cancelAnimation();
     const rect = this.svg.getBoundingClientRect();
     this.tx = rect.width / 2 - wx * this.scale;
     this.ty = rect.height / 2 - wy * this.scale;

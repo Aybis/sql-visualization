@@ -6,14 +6,14 @@ const DropdownMenu = DropdownMenuPrimitive.Root;
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 
 const DropdownMenuContent = React.forwardRef(
-  ({ className, sideOffset = 6, align = 'end', ...props }, ref) => (
+  ({ className, sideOffset = 8, align = 'end', ...props }, ref) => (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
         ref={ref}
         sideOffset={sideOffset}
         align={align}
         className={cn(
-          'z-50 min-w-[220px] overflow-hidden rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-xl',
+          'bouncy-popover z-50 min-w-[230px] overflow-hidden rounded-2xl border border-border bg-popover p-1.5 text-popover-foreground shadow-[0_14px_38px_rgba(0,0,0,0.14)] dark:shadow-[0_18px_42px_rgba(0,0,0,0.55)]',
           className
         )}
         {...props}
@@ -27,7 +27,7 @@ const DropdownMenuItem = React.forwardRef(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-pointer select-none items-center justify-between gap-2 rounded-md px-2.5 py-1.5 text-xs outline-none transition-colors hover:bg-accent focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'bouncy-interactive relative flex cursor-pointer select-none items-center justify-between gap-2 rounded-xl px-3 py-2 text-xs outline-none hover:bg-secondary focus:bg-secondary focus:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
     {...props}
@@ -38,7 +38,7 @@ DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName;
 const DropdownMenuSeparator = React.forwardRef(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
-    className={cn('-mx-1 my-1 h-px bg-border', className)}
+    className={cn('-mx-1 my-1.5 h-px bg-border', className)}
     {...props}
   />
 ));

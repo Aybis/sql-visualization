@@ -1,6 +1,6 @@
-# SQL to ERD — 100% Offline React + Vite + Tailwind + shadcn/ui Studio
+# Schemata — 100% Offline SQL to ERD Studio
 
-Convert any `.sql` schema or database dump file into a crisp, interactive **Entity-Relationship Diagram (ERD)** — built with **React 19, Vite, Tailwind CSS v4, and shadcn/ui (Radix UI + Lucide)** and running **100% offline** from file import all the way to diagram visualization and export.
+Convert any `.sql` schema or database dump file into a crisp, interactive **Entity-Relationship Diagram (ERD)** — built with **React 19, Vite, Tailwind CSS v4, shadcn/ui, and Framer Motion**, styled with an Airbnb-inspired minimalist black-and-white palette and Phantom-style spring physics, and running **100% offline** from file import all the way to diagram visualization and export.
 
 > **Zero internet required at runtime:** Every step (reading your `.sql` file, parsing tables & foreign keys, laying out the graph, rendering Crow's Foot relationships, and exporting SVG/PNG/Mermaid/DBML/Markdown/JSON) runs completely locally inside your browser — no external server, no database connection, and no CDN calls.
 

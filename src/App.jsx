@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { parseSqlToSchema } from './parser/sqlParser.js';
 import { computeErdLayout } from './layout/erdLayout.js';
 import {
@@ -19,7 +20,7 @@ import Inspector from './components/Inspector.jsx';
 import ExportModal from './components/ExportModal.jsx';
 import DropOverlay from './components/DropOverlay.jsx';
 
-const STORAGE_KEY = 'sql_to_erd_offline_prefs_v1';
+const STORAGE_KEY = 'sql_to_erd_offline_prefs_v2';
 
 function loadPrefs() {
   try {
@@ -52,7 +53,7 @@ export default function App() {
   const [debouncedSql, setDebouncedSql] = useState(SAMPLE_PRESETS.ecommerce_mysql.sql);
   const [fileName, setFileName] = useState('ecommerce_mysql.sql');
 
-  const [theme, setTheme] = useState(initialPrefs.theme === 'light' ? 'light' : 'dark');
+  const [theme, setTheme] = useState(initialPrefs.theme === 'dark' ? 'dark' : 'light');
   const [algorithm, setAlgorithm] = useState(initialPrefs.algorithm || 'hierarchical');
   const [detailMode, setDetailMode] = useState(initialPrefs.detailMode || 'full');
   const [edgeStyle, setEdgeStyle] = useState(initialPrefs.edgeStyle || 'orthogonal');
@@ -621,14 +622,21 @@ export default function App() {
         }}
       />
 
-      <div
-        id="toast"
-        className={`pointer-events-none fixed left-1/2 top-16 z-50 -translate-x-1/2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-foreground shadow-xl transition-all duration-150 ${
-          toastVisible ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0'
-        }`}
-      >
-        {toastMsg}
-      </div>
+      <AnimatePresence>
+        {toastVisible && (
+          <motion.div
+            id="toast"
+            key={toastMsg}
+            initial={{ opacity: 0, y: -24, scale: 0.86 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -16, scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 24, mass: 0.7 }}
+            className="pointer-events-none fixed left-1/2 top-18 z-50 -translate-x-1/2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-[0_12px_32px_rgba(0,0,0,0.22)]"
+          >
+            {toastMsg}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

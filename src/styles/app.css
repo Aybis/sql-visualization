@@ -3,59 +3,63 @@
 @custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
 
 /* ==========================================================================
-   Tailwind CSS v4 + shadcn/ui Design Tokens (100% Offline, System Font Stack)
+   Airbnb-Inspired Minimalist Monochrome (Black & White)
+   + Phantom Wallet Bouncy Spring Motion Tokens — 100% Offline
    ========================================================================== */
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #ffffff;
+  --foreground: #111111;
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: #111111;
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #2563eb;
+  --popover-foreground: #111111;
+  --primary: #111111;
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #eef2f6;
-  --accent-foreground: #0f172a;
-  --destructive: #dc2626;
+  --secondary: #f7f7f7;
+  --secondary-foreground: #222222;
+  --muted: #f5f5f5;
+  --muted-foreground: #717171;
+  --accent: #f0f0f0;
+  --accent-foreground: #111111;
+  --destructive: #111111;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #cbd5e1;
-  --ring: #2563eb;
-  --radius: 0.5rem;
+  --border: #ebebeb;
+  --input: #dddddd;
+  --ring: #111111;
+  --radius: 0.75rem;
 
-  --canvas-bg: #f6f8fc;
-  --canvas-dot: #cbd5e1;
+  --canvas-bg: #fafafa;
+  --canvas-dot: #d9d9d9;
+
+  --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --spring-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .dark,
 [data-theme="dark"] {
-  --background: #090e17;
-  --foreground: #f1f5f9;
-  --card: #0f1624;
-  --card-foreground: #f1f5f9;
-  --popover: #0f1624;
-  --popover-foreground: #f1f5f9;
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
-  --secondary: #162033;
-  --secondary-foreground: #f1f5f9;
-  --muted: #162033;
-  --muted-foreground: #94a3b8;
-  --accent: #1c2942;
-  --accent-foreground: #f1f5f9;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #1e2b42;
-  --input: #2d3f5e;
-  --ring: #3b82f6;
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #121214;
+  --card-foreground: #fafafa;
+  --popover: #141417;
+  --popover-foreground: #fafafa;
+  --primary: #fafafa;
+  --primary-foreground: #09090b;
+  --secondary: #1b1b1f;
+  --secondary-foreground: #f4f4f5;
+  --muted: #1b1b1f;
+  --muted-foreground: #a1a1aa;
+  --accent: #242429;
+  --accent-foreground: #fafafa;
+  --destructive: #fafafa;
+  --destructive-foreground: #09090b;
+  --border: #26262b;
+  --input: #34343b;
+  --ring: #fafafa;
 
-  --canvas-bg: #0c111b;
-  --canvas-dot: #1d273b;
+  --canvas-bg: #0b0b0d;
+  --canvas-dot: #26262b;
 }
 
 @theme inline {
@@ -82,7 +86,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }
 
@@ -99,13 +103,79 @@
   }
 }
 
-/* Dot-grid ERD Canvas Surface */
+/* ---------- Airbnb Minimalist Canvas Surface ---------- */
 .erd-canvas-surface {
   background-color: var(--canvas-bg);
-  background-image: radial-gradient(var(--canvas-dot) 1.25px, transparent 1.25px);
-  background-size: 24px 24px;
+  background-image: radial-gradient(var(--canvas-dot) 1.15px, transparent 1.15px);
+  background-size: 26px 26px;
 }
 
+/* ---------- Phantom-Style Bouncy Spring Keyframes & Utilities ---------- */
+@keyframes bouncy-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(6px);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.02) translateY(-1px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes bouncy-dialog-in {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -47%) scale(0.92);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -50.5%) scale(1.015);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes edge-flow {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.bouncy-interactive {
+  transition:
+    transform 240ms var(--spring-bounce),
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 220ms var(--spring-smooth);
+}
+
+.bouncy-interactive:hover {
+  transform: translateY(-1px) scale(1.02);
+}
+
+.bouncy-interactive:active {
+  transform: translateY(0) scale(0.93);
+}
+
+.bouncy-popover {
+  animation: bouncy-pop-in 260ms var(--spring-bounce) forwards;
+}
+
+.bouncy-dialog {
+  animation: bouncy-dialog-in 280ms var(--spring-bounce) forwards;
+}
+
+/* ---------- ERD SVG Interactions & Transitions ---------- */
 .erd-svg {
   cursor: grab;
   user-select: none;
@@ -121,8 +191,38 @@
 
 .erd-table {
   cursor: move;
+  transition: opacity 220ms var(--spring-smooth);
 }
 
 .erd-edge {
   cursor: pointer;
+  transition: opacity 220ms var(--spring-smooth);
+}
+
+.erd-edge-line {
+  transition: stroke 180ms ease, stroke-width 220ms var(--spring-bounce);
+}
+
+.erd-edge.is-highlighted .erd-edge-flow,
+.erd-edge.is-selected .erd-edge-flow {
+  animation: edge-flow 0.9s linear infinite;
+}
+
+/* Soft Airbnb-style scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--input);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
 }
